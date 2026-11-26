@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>潛意識星盤｜測出你靈魂深處的本命星座</title>
+    <!-- 社群分享 OG 標籤（上線時可替換為實際網址與縮圖） -->
+    <meta property="og:title" content="潛意識星盤｜測出你靈魂深處的本命星座">
+    <meta property="og:description" content="透過 8 道潛意識情境題，揭開連你自己都沒察覺的隱藏星座性格與靈魂伴侶！">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<!-- ==================== 好友分享連結預覽橫幅 ==================== -->
+<div id="shared-banner" class="shared-banner" style="display: none;">
+    <div class="shared-badge">✨ 好友星盤分享</div>
+    <p class="shared-text">
+        你的好友剛在《潛意識星盤》測出了 <strong id="shared-zodiac-name">天蠍座</strong>！
+    </p>
+    <div class="shared-actions">
+        <button id="btn-view-shared" class="btn-mini-outline">查看該星座解析</button>
+        <button id="btn-take-test-from-share" class="btn-mini-gold">我也來測測看</button>
+    </div>
+</div>
+    <!-- 背景星空粒子裝飾 -->
+    <div class="stars-bg"></div>
+    <div class="twinkling-bg"></div>
+
+    <main class="app-container">
+
+        <!-- ==================== 1. 首頁 / 啟動頁 ==================== -->
+        <section id="view-home" class="view active">
+            <div class="zodiac-wheel">✦ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ ✦</div>
+            <p class="subtitle">SUBCONSCIOUS ZODIAC TEST</p>
+            <h1 class="main-title">潛意識星盤<br><span>測出你靈魂深處的本命星座</span></h1>
+            <p class="intro-desc">
+                每個人出生時都有太陽星座，<br>
+                但面對壓力、愛情與抉擇時，<br>
+                主導你靈魂的卻可能是另一個星座。<br><br>
+                憑直覺回答 <strong>8 道隨機情境題</strong>，<br>
+                解鎖你的真實性格光譜。
+            </p>
+            <button id="btn-start" class="btn-primary pulse-anim">開始星盤探索</button>
+        </section>
+
+        <!-- ==================== 2. 測驗進行頁 (8題) ==================== -->
+        <section id="view-quiz" class="view">
+            <div class="quiz-header">
+                <div class="progress-info">
+                    <span>STAR ALIGNMENT</span>
+                    <span id="progress-text">1 / 8</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div id="question-box" class="question-card">
+                <div class="q-badge" id="q-category">情境探索</div>
+                <h2 id="q-title" class="q-title">題目載入中...</h2>
+                <div id="options-list" class="options-list">
+                    <!-- 選項由 jQuery 動態生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 3. 星象運算過場 ==================== -->
+        <section id="view-loading" class="view">
+            <div class="loader-orbit">
+                <div class="planet"></div>
+            </div>
+            <h2 id="loading-text" class="loading-text">正在連結你的潛意識星象...</h2>
+            <p class="loading-sub">比對 12 宮位性格光譜中</p>
+        </section>
+
+        <!-- ==================== 4. 結果揭曉與分享頁 ==================== -->
+        <section id="view-result" class="view">
+            <!-- 截圖分享卡片區 (4:5 比例視覺) -->
+            <div id="capture-card" class="result-card">
+                <div class="card-top-tag">✦ 你的靈魂本命星座是 ✦</div>
+                <div class="result-symbol" id="res-symbol">♏</div>
+                <h2 class="result-name" id="res-name">天蠍座</h2>
+                <div class="result-slogan" id="res-slogan">「外表冷靜自持，內心翻湧著深海般的洞察力」</div>
+
+                <div class="result-divider"></div>
+
+                <p class="result-desc" id="res-desc">
+                    性格解析文案載入中...
+                </p>
+
+                <!-- 三大性格光譜數值條 -->
+                <div class="stats-box">
+                    <div class="stat-row">
+                        <span>直覺敏銳度</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="stat-1" style="width: 0%"></div>
+                        </div>
+                        <span class="stat-val" id="stat-val-1">0%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>行動爆發力</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="stat-2" style="width: 0%"></div>
+                        </div>
+                        <span class="stat-val" id="stat-val-2">0%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>共情治癒力</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="stat-3" style="width: 0%"></div>
+                        </div>
+                        <span class="stat-val" id="stat-val-3">0%</span>
+                    </div>
+                </div>
+
+                <div class="result-footer-tags">
+                    <div class="tag-pill">💫 靈魂拍檔：<strong id="res-match">巨蟹座</strong></div>
+                    <div class="tag-pill">🍀 開運幸運色：<strong id="res-color">深酒紅</strong></div>
+                </div>
+            </div>
+
+            <!-- 分享與重測按鈕區 -->
+            <div class="action-buttons">
+                <button id="btn-save-img" class="btn-primary">📸 儲存結果圖卡 (發限動)</button>
+                <div class="share-row">
+                    <button id="btn-share-line" class="btn-secondary btn-line">LINE 分享</button>
+                    <button id="btn-copy-link" class="btn-secondary">🔗 複製連結</button>
+                </div>
+                <button id="btn-restart" class="btn-ghost">↻ 重新抽題再測一次</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast 提示訊息 -->
+    <div id="toast" class="toast">已複製測驗連結！</div>
+
+    <!-- 引入 jQuery 與 html2canvas -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/results.js"></script>
+    <script src="js/questions.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

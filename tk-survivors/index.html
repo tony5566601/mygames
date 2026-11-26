@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111916">
+  <title>三國・無雙生存</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="三國無雙生存首頁"><span class="brand-mark">三</span><span>三國<span class="brand-dot">・</span>無雙生存<small>THREE KINGDOMS SURVIVOR</small></span></a>
+      <div class="top-right"><span class="online-dot"></span> 單機試煉 <span class="top-divider"></span> <span>一人，亦可破千軍</span></div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <div class="eyebrow"><span></span> 亂世求生・英雄試煉</div>
+          <h1>一騎當千，<em>殺出重圍。</em></h1>
+          <p>烽煙四起，群雄逐鹿。選擇你的武將，在無盡敵軍中堅持到最後。</p>
+        </div>
+        <div class="intro-seal">戰</div>
+      </section>
+
+      <div class="layout">
+        <section class="game-section" aria-label="遊戲區域">
+          <div class="game-frame">
+            <canvas id="game" width="960" height="600" aria-label="三國生存遊戲畫面"></canvas>
+            <div class="game-hud hidden" id="hud">
+              <div class="hud-top">
+                <div class="hud-hero"><span id="hud-avatar" class="hud-avatar">關</span><div><strong id="hud-name">關羽</strong><small id="hud-title">武聖</small></div></div>
+                <div class="hud-timer"><small>存活時間</small><strong id="timer">00:00</strong></div>
+                <button class="pause-button" id="pause" aria-label="暫停遊戲">Ⅱ</button>
+              </div>
+              <div class="hud-bottom">
+                <div class="health-block"><div class="health-label"><span>生命</span><span id="health-text">100 / 100</span></div><div class="bar health-bar"><i id="health-fill"></i></div></div>
+                <div class="level-block"><span id="level">LV. 1</span><div class="bar xp-bar"><i id="xp-fill"></i></div></div>
+                <div class="kill-counter"><small>擊敗敵軍</small><strong id="kills">0</strong></div>
+              </div>
+            </div>
+            <div class="overlay" id="overlay">
+              <div class="overlay-content" id="overlay-content"></div>
+            </div>
+            <div class="mobile-controls hidden" id="mobile-controls" aria-label="觸控移動控制">
+              <button data-dir="up" aria-label="向上移動">▲</button>
+              <div><button data-dir="left" aria-label="向左移動">◀</button><button data-dir="down" aria-label="向下移動">▼</button><button data-dir="right" aria-label="向右移動">▶</button></div>
+            </div>
+          </div>
+          <div class="game-footer"><span><span class="footer-dot"></span> 戰場已就緒</span><span>單機模式 <b> / </b> 黃巾之亂</span></div>
+        </section>
+
+        <aside class="sidebar">
+          <div class="side-heading"><div><span class="section-kicker">CHOOSE YOUR HERO</span><h2>選擇出戰武將</h2></div><span class="heading-number">01</span></div>
+          <p class="side-description">各有所長，選一位與你並肩作戰。</p>
+          <div class="hero-list" id="hero-list">
+            <button class="hero-card selected" data-hero="guanyu" aria-pressed="true"><span class="portrait guanyu"><span>關</span></span><span class="hero-info"><strong>關羽 <small>武聖</small></strong><span>青龍偃月，橫掃千軍</span><span class="hero-tags"><i>近戰</i><i>高生命</i></span></span><span class="hero-check">✓</span></button>
+            <button class="hero-card" data-hero="zhaoyun" aria-pressed="false"><span class="portrait zhaoyun"><span>趙</span></span><span class="hero-info"><strong>趙雲 <small>常勝將軍</small></strong><span>龍膽破陣，迅捷如風</span><span class="hero-tags"><i>遠程</i><i>高攻速</i></span></span><span class="hero-check">✓</span></button>
+            <button class="hero-card" data-hero="zhugeliang" aria-pressed="false"><span class="portrait zhugeliang"><span>諸</span></span><span class="hero-info"><strong>諸葛亮 <small>臥龍</small></strong><span>運籌帷幄，借東風破敵</span><span class="hero-tags"><i>法術</i><i>範圍傷害</i></span></span><span class="hero-check">✓</span></button>
+          </div>
+          <div class="side-rule"></div>
+          <div class="guide-heading"><span class="section-kicker">HOW TO PLAY</span><h3>出征須知</h3></div>
+          <div class="guide-row"><span class="key-icon">W<br><span>A S D</span></span><div><strong>移動閃避</strong><small>WASD 或方向鍵移動</small></div></div>
+          <div class="guide-row"><span class="guide-icon">✦</span><div><strong>自動迎擊</strong><small>靠近敵人，武將自動攻擊</small></div></div>
+          <div class="guide-row"><span class="guide-icon">◆</span><div><strong>收集軍功</strong><small>拾取光點升級，強化能力</small></div></div>
+          <div class="side-note"><span>✧</span> 堅守三分鐘，擊退黃巾軍！</div>
+        </aside>
+      </div>
+      <div class="bottom-caption"><span>亂世之中，誰主沉浮</span><span>以一敵百 · 戰至最後</span></div>
+    </main>
+    <footer><span>三國・無雙生存 <b> / </b> A SURVIVOR'S TALE</span><span>為榮耀而戰 <span class="footer-seal">義</span></span></footer>
+  </div>
+  <script src="simulation.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

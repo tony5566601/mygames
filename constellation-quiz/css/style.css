@@ -1,0 +1,98 @@
+:root{ --bg-deep:#0b0d1f; --bg-card:rgba(22,26,54,0.88); --gold:#f5d076; --gold-dim:rgba(245,208,118,0.3); --purple-accent:#7b5cff; --text-main:#f4f5fb; --text-sub:#b3b8d4; }
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif; background:radial-gradient(circle at top,#1b1f47 0%,var(--bg-deep) 75%); color:var(--text-main); min-height:100vh; display:flex; justify-content:center; align-items:center; overflow-x:hidden; padding:20px 16px; }
+
+/* 星空點綴效果 */
+.stars-bg{ position:fixed; inset:0; background-image:radial-gradient(1.5px 1.5px at 20px 30px,#ffffff,rgba(0,0,0,0)),radial-gradient(1px 1px at 90px 140px,var(--gold),rgba(0,0,0,0)),radial-gradient(2px 2px at 180px 80px,#ffffff,rgba(0,0,0,0)),radial-gradient(1.5px 1.5px at 260px 210px,#a594ff,rgba(0,0,0,0)); background-size:300px 300px; opacity:0.55; pointer-events:none; z-index:0; }
+.app-container{ position:relative; z-index:1; width:100%; max-width:440px; }
+
+/* 視圖切換控制 */
+.view{ display:none; text-align:center; }
+.view.active{ display:block; animation:fadeUp 0.5s ease forwards; }
+@keyframes fadeUp{ 
+from{ opacity:0; transform:translateY(14px); }
+to{ opacity:1; transform:translateY(0); }
+}
+
+/* ==================== 1. 首頁樣式 ==================== */
+.zodiac-wheel{ font-size:14px; letter-spacing:4px; color:var(--gold); margin-bottom:18px; opacity:0.9; }
+.subtitle{ font-size:12px; letter-spacing:3px; color:var(--gold); margin-bottom:8px; }
+.main-title{ font-size:32px; font-weight:800; line-height:1.3; margin-bottom:22px; background:linear-gradient(135deg,#fff 20%,var(--gold) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.main-title span{ font-size:18px; font-weight:500; }
+.intro-desc{ background:var(--bg-card); border:1px solid var(--gold-dim); border-radius:18px; padding:24px 20px; font-size:15px; line-height:1.75; color:var(--text-sub); margin-bottom:28px; box-shadow:0 12px 32px rgba(0,0,0,0.35); }
+.intro-desc strong{ color:var(--gold); }
+
+/* ==================== 按鈕系統 ==================== */
+.btn-primary{ width:100%; padding:16px 24px; border:none; border-radius:50px; background:linear-gradient(135deg,#f5d076 0%,#d49b38 100%); color:#161326; font-size:17px; font-weight:700; letter-spacing:1px; cursor:pointer; box-shadow:0 6px 20px rgba(245,208,118,0.35); transition:transform 0.15s ease,box-shadow 0.15s ease; }
+.btn-primary:active{ transform:scale(0.97); }
+.pulse-anim{ animation:pulseGlow 2.2s infinite; }
+@keyframes pulseGlow{ 
+0%,100%{ box-shadow:0 0 15px rgba(245,208,118,0.35); }
+50%{ box-shadow:0 0 28px rgba(245,208,118,0.7); }
+}
+
+/* ==================== 2. 測驗進行頁 ==================== */
+.quiz-header{ margin-bottom:20px; }
+.progress-info{ display:flex; justify-content:space-between; font-size:12px; letter-spacing:1.5px; color:var(--gold); margin-bottom:8px; }
+.progress-bar-bg{ width:100%; height:6px; background:rgba(255,255,255,0.12); border-radius:10px; overflow:hidden; }
+.progress-bar-fill{ height:100%; width:12.5%; background:linear-gradient(90deg,var(--purple-accent),var(--gold)); border-radius:10px; transition:width 0.35s ease; }
+.question-card{ background:var(--bg-card); border:1px solid var(--gold-dim); border-radius:20px; padding:26px 20px; box-shadow:0 14px 36px rgba(0,0,0,0.4); transition:opacity 0.25s ease,transform 0.25s ease; }
+.question-card.fade-out{ opacity:0; transform:translateX(-16px); }
+.q-badge{ display:inline-block; font-size:12px; color:var(--gold); border:1px solid var(--gold-dim); padding:3px 12px; border-radius:20px; margin-bottom:14px; }
+.q-title{ font-size:19px; line-height:1.55; font-weight:600; margin-bottom:22px; text-align:left; }
+.options-list{ display:flex; flex-direction:column; gap:12px; }
+.option-btn{ width:100%; text-align:left; padding:15px 16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:14px; color:var(--text-main); font-size:15px; line-height:1.45; cursor:pointer; transition:all 0.2s ease; }
+.option-btn:hover{ background:rgba(123,92,255,0.18); border-color:var(--gold); }
+.option-btn.selected{ background:linear-gradient(135deg,rgba(245,208,118,0.28),rgba(123,92,255,0.35)); border-color:var(--gold); color:#fff; font-weight:600; transform:scale(1.02); }
+
+/* ==================== 3. 星象運算過場 ==================== */
+#view-loading{ padding:60px 0; }
+.loader-orbit{ width:84px; height:84px; border:2px dashed var(--gold); border-radius:50%; margin:0 auto 24px; position:relative; animation:spin 3s linear infinite; }
+.loader-orbit .planet{ width:14px; height:14px; background:var(--gold); border-radius:50%; position:absolute; top:-7px; left:50%; transform:translateX(-50%); box-shadow:0 0 12px var(--gold); }
+@keyframes spin{ 
+100%{ transform:rotate(360deg); }
+}
+.loading-text{ font-size:18px; color:var(--gold); margin-bottom:8px; }
+.loading-sub{ font-size:13px; color:var(--text-sub); }
+
+/* ==================== 4. 結果揭曉與分享卡片 ==================== */
+.result-card{ background:linear-gradient(160deg,#1d224b 0%,#10132e 100%); border:1.5px solid var(--gold); border-radius:22px; padding:26px 22px; margin-bottom:20px; box-shadow:0 16px 40px rgba(0,0,0,0.5); position:relative; }
+.card-top-tag{ font-size:12px; letter-spacing:2px; color:var(--gold); margin-bottom:10px; }
+.result-symbol{ font-size:46px; line-height:1.1; margin-bottom:6px; text-shadow:0 0 20px rgba(245,208,118,0.5); }
+.result-name{ font-size:28px; font-weight:800; color:var(--gold); margin-bottom:8px; }
+.result-slogan{ font-size:14px; font-weight:600; color:#fff; line-height:1.5; }
+.result-divider{ height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),transparent); margin:16px 0; }
+.result-desc{ font-size:14.5px; line-height:1.75; color:#dce0f5; text-align:justify; margin-bottom:18px; }
+
+/* 數值條 */
+.stats-box{ background:rgba(0,0,0,0.25); border-radius:14px; padding:14px; margin-bottom:16px; }
+.stat-row{ display:flex; align-items:center; gap:10px; font-size:12.5px; margin-bottom:8px; }
+.stat-row:last-child{ margin-bottom:0; }
+.stat-row span:first-child{ width:72px; text-align:left; color:var(--text-sub); }
+.stat-bar{ flex:1; height:7px; background:rgba(255,255,255,0.1); border-radius:6px; overflow:hidden; }
+.stat-fill{ height:100%; background:linear-gradient(90deg,#8b6eff,var(--gold)); border-radius:6px; transition:width 0.8s ease-out; }
+.stat-val{ width:34px; text-align:right; color:var(--gold); font-weight:600; }
+.result-footer-tags{ display:flex; justify-content:space-between; gap:8px; }
+.tag-pill{ flex:1; background:rgba(245,208,118,0.1); border:1px solid var(--gold-dim); border-radius:10px; padding:8px 6px; font-size:12px; color:var(--text-sub); }
+.tag-pill strong{ color:var(--gold); }
+
+/* 分享按鈕群 */
+.action-buttons{ display:flex; flex-direction:column; gap:10px; }
+.share-row{ display:flex; gap:10px; }
+.btn-secondary{ flex:1; padding:13px 16px; border-radius:50px; border:1px solid var(--gold-dim); background:rgba(255,255,255,0.08); color:#fff; font-size:14px; font-weight:600; cursor:pointer; }
+.btn-line{ background:#06c755; border-color:#06c755; }
+.btn-ghost{ background:transparent; border:none; color:var(--text-sub); font-size:14px; padding:10px; cursor:pointer; text-decoration:underline; }
+
+/* Toast 提示 */
+.toast{ position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(245,208,118,0.95); color:#161326; padding:10px 22px; border-radius:30px; font-size:14px; font-weight:700; opacity:0; pointer-events:none; transition:all 0.3s ease; z-index:99; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ==================== 好友分享預覽橫幅 ==================== */
+.shared-banner{ background:linear-gradient(135deg,rgba(123,92,255,0.28),rgba(245,208,118,0.16)); border:1px solid var(--gold); border-radius:16px; padding:14px 16px; margin-bottom:18px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.35); animation:fadeUp 0.4s ease forwards; }
+.shared-badge{ display:inline-block; font-size:11px; font-weight:700; color:var(--bg-deep); background:var(--gold); padding:2px 10px; border-radius:20px; margin-bottom:6px; }
+.shared-text{ font-size:14px; color:#fff; margin-bottom:10px; }
+.shared-text strong{ color:var(--gold); font-size:15px; }
+.shared-actions{ display:flex; gap:8px; justify-content:center; }
+.btn-mini-gold,.btn-mini-outline{ padding:7px 14px; border-radius:20px; font-size:12.5px; font-weight:700; cursor:pointer; }
+.btn-mini-gold{ border:none; background:var(--gold); color:#161326; }
+.btn-mini-outline{ border:1px solid var(--gold); background:rgba(11,13,31,0.65); color:var(--gold); }
