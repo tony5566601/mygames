@@ -1,13 +1,7 @@
-// ★ 請替換為你部署完成的 Google Apps Script Web App 網址
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc1ixLtcV5kXczXTIZOkjhYQKvRuODWhPaE6lm0JdNT6aIlJqEZYNv/exec";
-
     let currentMode = "tarot";
-    let profileData = { skipped: true, fields: {} };
-    let chatHistory = [];
-    let turnCount = 0;
-    let targetQuestionCount = 0;
-    let isLoading = false;
-    let responseFailed = false;
+    let birthDate = "";
+    let sessionQuestions = [];
+    let answers = [];
     let resultTimer = null;
     const tarotCards = [
       { name: "0 愚者", figure: "站在懸崖邊、身旁有白犬與太陽的旅人" },
@@ -34,6 +28,30 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       { name: "XXI 世界", figure: "在月桂花環中起舞、被四個天體象徵環繞的人物" }
     ];
     const tarotPositions = ["過去", "現在", "未來"];
+    const tarotMeanings = [
+      ["新的旅程與好奇心", "放慢腳步，先看看腳下"],
+      ["運用手邊資源展開行動", "聚焦真正想做的一件事"],
+      ["傾聽直覺與內在聲音", "給自己安靜整理的時間"],
+      ["滋養想法並照顧自己", "留意自己是否也需要休息"],
+      ["建立界線與穩定的秩序", "讓計畫保留一點彈性"],
+      ["從經驗與他人的智慧學習", "重新思考習慣是否適合你"],
+      ["重視選擇與真誠的連結", "先釐清自己的感受與期待"],
+      ["帶著方向感向前邁進", "調整步調，不必急著衝刺"],
+      ["以耐心和溫柔面對挑戰", "接納疲憊，適時尋求支持"],
+      ["透過獨處找到自己的答案", "不必獨自承擔所有問題"],
+      ["留意變化帶來的新可能", "在變動中照顧好自己的節奏"],
+      ["公平地衡量選擇與後果", "先確認資訊，再下判斷"],
+      ["換一個角度理解現況", "檢視什麼讓你遲遲無法前進"],
+      ["為結束與新的開始騰出空間", "慢慢放下已不適合的事"],
+      ["在不同需求之間找到平衡", "調整過度緊繃或失衡的節奏"],
+      ["覺察讓自己受限的習慣", "嘗試鬆開不必要的束縛"],
+      ["從意外的變化中重新整理", "循序處理變動，不必急著重建一切"],
+      ["保持希望，為自己補充能量", "重新找回值得期待的小事"],
+      ["接納尚未明朗的情緒與想像", "釐清猜測與實際發生的事"],
+      ["看見喜悅與清晰的方向", "允許自己不必時時充滿活力"],
+      ["回顧經驗，做出新的選擇", "暫時放下對自己的嚴苛評價"],
+      ["肯定一段旅程的累積與完成", "為尚未完成的事留一點耐心"]
+    ];
     let tarotTopic = "";
     let tarotDeck = [];
     let tarotDrawn = [];
@@ -45,9 +63,6 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
     const dialogueBox = document.getElementById("dialogueBox");
     const fortuneTellerImage = document.getElementById("fortuneTellerImage");
     const suggestionsBox = document.getElementById("suggestionsBox");
-    const inputArea = document.getElementById("inputArea");
-    const userInput = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
     const resultDialog = document.getElementById("resultDialog");
     const resultLoading = document.getElementById("resultLoading");
     const resultContent = document.getElementById("resultContent");
@@ -70,10 +85,6 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       }
     };
 
-    sendBtn.addEventListener("click", () => handleSend());
-    userInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.isComposing) handleSend();
-    });
     document.getElementById("closeResultBtn").addEventListener("click", () => resultDialog.close());
     resultDialog.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
@@ -90,26 +101,20 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       if (resultDialog.open) resultDialog.close();
       resultContent.replaceChildren();
       viewResultBtn.hidden = true;
-      responseFailed = false;
-      userInput.disabled = false;
-      sendBtn.disabled = false;
-      chatHistory = [];
-      turnCount = 0;
-      targetQuestionCount = 0;
+      sessionQuestions = [];
+      answers = [];
       tarotSpread = null;
       dialogueBox.innerHTML = "";
       suggestionsBox.innerHTML = "";
       chatBox.classList.remove("active");
       suggestionsBox.classList.remove("active");
-      inputArea.classList.remove("active");
       intakePanel.style.display = "flex";
       intakePanel.scrollTop = 0;
-      userInput.value = "";
     }
 
     function showModeSelection() {
       resetIntakeView();
-      profileData = { skipped: true, fields: {} };
+      birthDate = "";
       intakePanel.classList.add("selection-view");
       intakeCard.classList.add("mode-selection");
       intakeCard.innerHTML = `
@@ -117,7 +122,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
           <div class="hero-copy">
             <p class="eyebrow"><span class="eyebrow-rule"></span> 一間留給自己的小小觀星室 <span class="eyebrow-en">A QUIET SPACE TO LISTEN</span></p>
             <h2 id="hero-title">不急著找答案，<br /><span>先聽聽心裡的回音。</span></h2>
-            <p class="hero-description">塔羅、星座與紫微八字，<br class="desktop-break" />替此刻的你，留一則溫柔的靈感手札。</p>
+            <p class="hero-description">塔羅、星座與趣味命理，<br class="desktop-break" />用有趣的選擇題，為你留一則靈感手札。</p>
             <button class="primary-button hero-button" type="button" data-action="scroll-ritual">選擇你的占卜方式 <span aria-hidden="true">↓</span></button>
           </div>
           <div class="hero-art-wrap"><div class="celestial-plate" aria-label="以月相與星軌為靈感的手繪天體圖">
@@ -138,7 +143,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
             <p class="eyebrow"><span class="eyebrow-rule"></span> 先選一種你喜歡的入口 <span class="eyebrow-en">CHOOSE YOUR RITUAL</span></p>
             <h2>今天，想從哪裡開始？</h2>
           </div>
-          <p>跟著直覺挑一個就好。<br />下一步可填寫資料或直接略過。</p>
+          <p>跟著直覺挑一個就好。<br />每種玩法都有 100 道趣味題目。</p>
         </div>
         <div class="fortune-cards">
           <button type="button" class="fortune-card" data-mode="tarot" aria-label="選擇塔羅占卜">
@@ -151,28 +156,28 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
             </span>
             <span class="fortune-card-cta">開始探索 →</span>
           </button>
-          <button type="button" class="fortune-card" data-mode="zodiac" aria-label="選擇星座星盤">
+          <button type="button" class="fortune-card" data-mode="zodiac" aria-label="選擇星座占卜">
             <span class="fortune-card-top"><span>02 / 03</span><span>生日與星座</span></span>
             <span class="fortune-card-icon" aria-hidden="true">☼</span>
             <span class="fortune-card-content">
               <span class="fortune-card-english">A NOTE FROM THE STARS</span>
-              <span class="fortune-card-title">星座星盤</span>
-              <span class="fortune-card-desc">生日星象與個人星盤參考</span>
+              <span class="fortune-card-title">星座占卜</span>
+              <span class="fortune-card-desc">太陽星座與星際趣味探索</span>
             </span>
             <span class="fortune-card-cta">開始探索 →</span>
           </button>
           <button type="button" class="fortune-card" data-mode="ziwei" aria-label="選擇紫微八字">
-            <span class="fortune-card-top"><span>03 / 03</span><span>日期與時辰</span></span>
+            <span class="fortune-card-top"><span>03 / 03</span><span>趣味命理</span></span>
             <span class="fortune-card-icon" aria-hidden="true">☯</span>
             <span class="fortune-card-content">
               <span class="fortune-card-english">BIRTH CHART INSPIRATION</span>
               <span class="fortune-card-title">紫微八字</span>
-              <span class="fortune-card-desc">生辰命理與個人運勢參考</span>
+              <span class="fortune-card-desc">命理風格的趣味模擬，非實際排盤</span>
             </span>
             <span class="fortune-card-cta">開始探索 →</span>
           </button>
         </div>
-        <p class="selection-caption"><span class="eyebrow-rule"></span> 一次只需要一個問題，也可以什麼都不問。</p>
+        <p class="selection-caption"><span class="eyebrow-rule"></span> 每次隨機回答 4～6 題，憑直覺選就好。</p>
       `;
 
       intakeCard.querySelector('[data-action="scroll-ritual"]').addEventListener("click", () => {
@@ -239,7 +244,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
             </button>
           `).join("")}
         </div>
-        <button type="button" class="btn-start tarot-start" id="tarotStartBtn" disabled>抽完三張牌後開始對話</button>
+        <button type="button" class="btn-start tarot-start" id="tarotStartBtn" disabled>抽完三張牌後開始答題</button>
         <button type="button" class="btn-back" id="backToTopicsBtn">← 返回選擇主題</button>
       `;
       intakeCard.querySelectorAll(".tarot-deck-card").forEach(button => {
@@ -247,10 +252,8 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       });
       document.getElementById("backToTopicsBtn").addEventListener("click", showTarotTopics);
       document.getElementById("tarotStartBtn").addEventListener("click", () => {
-        const [past, present, future] = tarotDrawn.map(({ name, orientation, figure }) => ({ name, orientation, figure }));
+        const [past, present, future] = tarotDrawn;
         tarotSpread = { topic: tarotTopic, past, present, future };
-        profileData = { skipped: true, fields: {} };
-        chatHistory = [];
         enterChatSession();
       });
     }
@@ -273,9 +276,9 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       const status = document.getElementById("tarotStatus");
       const start = document.getElementById("tarotStartBtn");
       if (tarotDrawn.length === tarotPositions.length) {
-        status.textContent = `未來抽到「${card.name}」${card.orientation}。三張牌已揭曉，可以開始對話。`;
+        status.textContent = `未來抽到「${card.name}」${card.orientation}。三張牌已揭曉，可以開始答題。`;
         start.disabled = false;
-        start.textContent = "開始與占卜師對話";
+        start.textContent = "開始回答趣味題";
         intakeCard.querySelectorAll(".tarot-deck-card").forEach(deckCard => { deckCard.disabled = true; });
       } else {
         status.textContent = `${position}抽到「${card.name}」${card.orientation}。請選擇代表「${tarotPositions[tarotDrawn.length]}」的牌`;
@@ -290,69 +293,21 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
 
       if (currentMode === "ziwei") {
         intakeCard.innerHTML = `
-          <div class="intake-title">☯ 紫微八字・生辰參考資料</div>
-          <div class="intake-desc">就像傳統命理師看盤前會先問生辰一樣，你可以填寫以下資料；若不想提供或忘記時辰，直接按「略過」也能開始對話。</div>
-          <div class="form-group">
-            <label>曆法類型</label>
-            <select id="zwCalendar">
-              <option value="國曆">國曆</option>
-              <option value="農曆">農曆</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>出生年月日</label>
-            <input type="date" id="zwBirthDate" />
-          </div>
-          <div class="form-group">
-            <label>出生時辰</label>
-            <select id="zwBirthTime">
-              <option value="不確定">不確定／不清楚</option>
-              <option value="子時 (23:00-00:59)">子時 (23:00-00:59)</option>
-              <option value="丑時 (01:00-02:59)">丑時 (01:00-02:59)</option>
-              <option value="寅時 (03:00-04:59)">寅時 (03:00-04:59)</option>
-              <option value="卯時 (05:00-06:59)">卯時 (05:00-06:59)</option>
-              <option value="辰時 (07:00-08:59)">辰時 (07:00-08:59)</option>
-              <option value="巳時 (09:00-10:59)">巳時 (09:00-10:59)</option>
-              <option value="午時 (11:00-12:59)">午時 (11:00-12:59)</option>
-              <option value="未時 (13:00-14:59)">未時 (13:00-14:59)</option>
-              <option value="申時 (15:00-16:59)">申時 (15:00-16:59)</option>
-              <option value="酉時 (17:00-18:59)">酉時 (17:00-18:59)</option>
-              <option value="戌時 (19:00-20:59)">戌時 (19:00-20:59)</option>
-              <option value="亥時 (21:00-22:59)">亥時 (21:00-22:59)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>性別（選填）</label>
-            <select id="zwGender">
-              <option value="">不指定</option>
-              <option value="女">女</option>
-              <option value="男">男</option>
-            </select>
-          </div>
-          <div class="intake-actions">
-            <button class="btn-skip" id="skipBtn">略過，直接聊</button>
-            <button class="btn-start" id="startBtn">填入資料並開始</button>
-          </div>
+          <div class="intake-title">☯ 紫微八字・趣味命理</div>
+          <div class="intake-desc">這是一場命理風格的想像之旅，依你的選擇產生趣味結果，不會計算紫微命盤或八字，也不需要提供生辰資料。</div>
+          <div class="intake-actions"><button type="button" class="btn-start" id="startBtn">開始回答趣味題</button></div>
         `;
       } else if (currentMode === "zodiac") {
         intakeCard.innerHTML = `
-          <div class="intake-title">♈ 星座星盤・生日星象資料</div>
-          <div class="intake-desc">提供生日可讓星象解讀更貼近你的星座與流年；若不想填寫，也可直接點選「略過」。</div>
+          <div class="intake-title">♈ 星座占卜・生日資料</div>
+          <div class="intake-desc">可以填寫生日，結果會顯示對應的太陽星座；不填也能遊玩。本遊戲不計算完整星盤或即時星象。</div>
           <div class="form-group">
-            <label>出生日期</label>
+            <label for="zdBirthDate">出生日期（選填）</label>
             <input type="date" id="zdBirthDate" />
           </div>
-          <div class="form-group">
-            <label>出生時間（選填，不知道可留白）</label>
-            <input type="time" id="zdBirthTime" />
-          </div>
-          <div class="form-group">
-            <label>出生地點（選填，例如：台北、台中）</label>
-            <input type="text" id="zdBirthPlace" placeholder="可留白" maxlength="30" />
-          </div>
           <div class="intake-actions">
-            <button class="btn-skip" id="skipBtn">略過，直接聊</button>
-            <button class="btn-start" id="startBtn">填入資料並開始</button>
+            <button type="button" class="btn-skip" id="skipBtn">略過生日</button>
+            <button type="button" class="btn-start" id="startBtn">開始回答趣味題</button>
           </div>
         `;
       }
@@ -360,132 +315,70 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       intakeCard.insertAdjacentHTML("beforeend", '<button type="button" class="btn-back" id="backToModesBtn">← 返回選擇占卜方式</button>');
       document.getElementById("backToModesBtn").addEventListener("click", showModeSelection);
 
-      document.getElementById("skipBtn").addEventListener("click", () => {
-        profileData = { skipped: true, fields: {} };
+      const skipBtn = document.getElementById("skipBtn");
+      if (skipBtn) skipBtn.addEventListener("click", () => {
+        birthDate = "";
         enterChatSession();
       });
-
       document.getElementById("startBtn").addEventListener("click", () => {
-        const fields = collectFieldsByMode(currentMode);
-        const hasAnyValue = Object.values(fields).some(v => v && v !== "不指定");
-        profileData = {
-          skipped: !hasAnyValue,
-          fields: fields
-        };
+        const dateInput = document.getElementById("zdBirthDate");
+        if (dateInput && !dateInput.reportValidity()) return;
+        birthDate = dateInput ? dateInput.value : "";
         enterChatSession();
       });
-    }
-
-    function collectFieldsByMode(mode) {
-      if (mode === "ziwei") {
-        return {
-          calendarType: document.getElementById("zwCalendar")?.value || "",
-          birthDate: document.getElementById("zwBirthDate")?.value || "",
-          birthTime: document.getElementById("zwBirthTime")?.value || "",
-          gender: document.getElementById("zwGender")?.value || ""
-        };
-      }
-      if (mode === "zodiac") {
-        return {
-          birthDate: document.getElementById("zdBirthDate")?.value || "",
-          birthTime: document.getElementById("zdBirthTime")?.value || "",
-          birthPlace: document.getElementById("zdBirthPlace")?.value.trim() || ""
-        };
-      }
     }
 
     function enterChatSession() {
-      turnCount = 1;
-      targetQuestionCount = 4 + Math.floor(Math.random() * 3);
+      const groups = [...questionGroups[currentMode]];
+      for (let i = groups.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [groups[i], groups[j]] = [groups[j], groups[i]];
+      }
+      sessionQuestions = groups.slice(0, 4 + Math.floor(Math.random() * 3)).map(group => ({
+        text: group.questions[Math.floor(Math.random() * group.questions.length)],
+        options: group.options
+      }));
+      answers = [];
       intakePanel.style.display = "none";
       const fortuneTeller = fortuneTellers[currentMode];
       fortuneTellerImage.src = fortuneTeller.image;
       fortuneTellerImage.alt = fortuneTeller.alt;
       chatBox.classList.add("active");
       suggestionsBox.classList.add("active");
-      inputArea.classList.add("active");
-      requestAIResponse();
+      showQuestion();
     }
 
-    function handleSend(customText) {
-      if (isLoading) return;
-      const text = (customText || userInput.value).trim();
-      if (!text) return;
-      userInput.blur();
-
-      if (text === "再算另一件事" || text === "換個方式占卜") {
-        showModeSelection();
-        return;
-      }
-
-      userInput.value = "";
-      appendMessage("user", text);
-      chatHistory.push({ role: "user", text });
-      turnCount++;
-      requestAIResponse();
-    }
-
-    async function requestAIResponse() {
-      isLoading = true;
-      responseFailed = false;
-      sendBtn.disabled = true;
-      suggestionsBox.innerHTML = "";
-
-      const loadingEl = appendMessage("ai", "✨ 正在感應你的氣場與星象...");
-
-      try {
-        const res = await fetch(GAS_WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            mode: currentMode,
-            history: chatHistory,
-            turnCount: turnCount,
-            targetQuestionCount: targetQuestionCount,
-            profileData: profileData,
-            ...(currentMode === "tarot" ? { tarotSpread } : {})
-          })
+    function showQuestion() {
+      const question = sessionQuestions[answers.length];
+      appendMessage(`第 ${answers.length + 1}／${sessionQuestions.length} 題\n${question.text}`);
+      suggestionsBox.replaceChildren();
+      question.options.forEach((text, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "chip";
+        button.textContent = text;
+        button.addEventListener("click", () => {
+          answers.push({ question: question.text, text, index });
+          if (answers.length < sessionQuestions.length) {
+            showQuestion();
+          } else {
+            suggestionsBox.replaceChildren();
+            appendMessage("謝謝你的選擇，來看看這次的趣味占卜結果吧。");
+            renderResultCard(buildResult());
+          }
         });
-
-        const json = await res.json();
-        loadingEl.remove();
-
-        if (!json.success) {
-          appendMessage("ai", json.error || "占卜服務回報錯誤，請檢查後端與 Gemini API 設定後再試。");
-          console.error(json);
-          showRetryButton();
-          return;
-        }
-
-        const aiData = json.data;
-        appendMessage("ai", aiData.reply);
-        chatHistory.push({ role: "assistant", text: aiData.reply });
-
-        if (aiData.isFinal && aiData.resultCard) {
-          renderResultCard(aiData.resultCard);
-        }
-
-        renderSuggestions(aiData.suggestions || []);
-
-      } catch (err) {
-        loadingEl.remove();
-        appendMessage("ai", "連線似乎暫時中斷了，請確認網路或 GAS 網址是否正確。");
-        console.error(err);
-        showRetryButton();
-      } finally {
-        isLoading = false;
-        sendBtn.disabled = responseFailed;
-        userInput.disabled = responseFailed;
-      }
+        suggestionsBox.appendChild(button);
+      });
+      suggestionsBox.firstElementChild.focus({ preventScroll: true });
     }
 
-    function appendMessage(sender, text) {
+    function appendMessage(text) {
       const message = document.createElement("div");
-      message.className = `vn-message ${sender}`;
+      message.className = "vn-message";
 
       const speaker = document.createElement("div");
       speaker.className = "vn-speaker";
-      speaker.textContent = sender === "ai" ? fortuneTellers[currentMode].name : "你";
+      speaker.textContent = fortuneTellers[currentMode].name;
 
       const content = document.createElement("div");
       content.className = "vn-text";
@@ -494,27 +387,81 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       message.append(speaker, content);
       dialogueBox.replaceChildren(message);
       dialogueBox.scrollTop = dialogueBox.scrollHeight;
-      return message;
     }
 
-    function renderSuggestions(list) {
-      suggestionsBox.innerHTML = "";
-      list.forEach(item => {
-        const chip = document.createElement("button");
-        chip.className = "chip";
-        chip.textContent = item;
-        chip.addEventListener("click", () => handleSend(item));
-        suggestionsBox.appendChild(chip);
-      });
+    function getZodiac(date) {
+      if (!date) return "";
+      const [, month, day] = date.split("-").map(Number);
+      const signs = [
+        ["摩羯座", "水瓶座", 20], ["水瓶座", "雙魚座", 19],
+        ["雙魚座", "牡羊座", 21], ["牡羊座", "金牛座", 20],
+        ["金牛座", "雙子座", 21], ["雙子座", "巨蟹座", 21],
+        ["巨蟹座", "獅子座", 23], ["獅子座", "處女座", 23],
+        ["處女座", "天秤座", 23], ["天秤座", "天蠍座", 23],
+        ["天蠍座", "射手座", 22], ["射手座", "摩羯座", 22]
+      ];
+      const [early, late, cutoff] = signs[month - 1];
+      return day < cutoff ? early : late;
     }
 
-    function showRetryButton() {
-      responseFailed = true;
-      const retry = document.createElement("button");
-      retry.className = "chip";
-      retry.textContent = "重新嘗試";
-      retry.addEventListener("click", requestAIResponse);
-      suggestionsBox.replaceChildren(retry);
+    function buildResult() {
+      const scores = [0, 0, 0];
+      answers.forEach(answer => { scores[answer.index]++; });
+      const maxScore = Math.max(...scores);
+      const style = answers.find(answer => scores[answer.index] === maxScore).index;
+      const styles = [
+        {
+          keyword: "好奇探索",
+          summary: "你的選擇偏向【好奇探索】，喜歡為生活打開新的可能。",
+          outlook: "為想試的事保留一點空間，從一個小實驗開始，不必一次決定全部。",
+          action: "挑一條沒走過的路，或試試一直想做卻還沒開始的小事。",
+          reminder: "新鮮的點子很多時，先確認自己的時間和精力，再挑一件優先做。"
+        },
+        {
+          keyword: "從容沉澱",
+          summary: "你的選擇偏向【從容沉澱】，喜歡先觀察、整理，再找到舒服的步調。",
+          outlook: "給自己一段不被打擾的時間，把在意的事寫下來，慢慢釐清。",
+          action: "泡杯喜歡的飲料，整理一個小角落，或安排一段安靜的休息。",
+          reminder: "不必急著有答案；如果思緒打轉，也可以向信任的人說說。"
+        },
+        {
+          keyword: "溫暖連結",
+          summary: "你的選擇偏向【溫暖連結】，喜歡在交流和陪伴中找到力量。",
+          outlook: "把想法分享給信任的人，也留意自己的需求和界線。",
+          action: "傳一則問候、邀人散步，或和朋友分享一件最近的小發現。",
+          reminder: "照顧別人之餘，也記得詢問自己是否需要休息或獨處。"
+        }
+      ];
+      const selected = styles[style];
+      let title;
+      let reading;
+      if (currentMode === "tarot") {
+        title = `${tarotSpread.topic}・三張牌的故事`;
+        reading = ["past", "present", "future"].map((key, index) => {
+          const card = tarotSpread[key];
+          const meaning = tarotMeanings[card.number][card.orientation === "正位" ? 0 : 1];
+          return `${tarotPositions[index]}：${card.name}・${card.orientation}——${meaning}。`;
+        }).join("\n");
+      } else if (currentMode === "zodiac") {
+        const sign = getZodiac(birthDate);
+        title = sign ? `${sign}・星光靈感手札` : "星光靈感手札";
+        reading = sign
+          ? `依你提供的生日，太陽星座為${sign}（採常見日期區間）。這份趣味解讀以你的選擇為主，並非完整星盤。`
+          : "這次沒有使用生日或計算星盤，以下是依你的選擇組合的星光靈感。";
+      } else {
+        title = "趣味命理・福氣靈感手札";
+        reading = "這是命理風格的趣味模擬，依你的選擇組合結果，並未計算紫微命盤或八字。";
+      }
+      return {
+        title,
+        keyword: selected.keyword,
+        summary: `${selected.summary} 這份手札不是預言，而是邀請你用另一個角度看看自己。`,
+        todayFortune: reading,
+        weeklyOutlook: selected.outlook,
+        outfitAndLucky: selected.action,
+        warningAndAvoid: selected.reminder,
+        healthReminder: `你選了「${answers[0].text}」。回想這個答案帶給你的感覺，也許能幫你找到此刻想珍惜的事。`
+      };
     }
 
     function renderResultCard(card) {
@@ -523,17 +470,17 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc
       const summary = card.summary || `本次占卜以【${keyword}】為核心：${card.todayFortune || ""} ${card.weeklyOutlook || ""}`;
       const fortuneTeller = fortuneTellers[currentMode];
       const sections = [
-        { icon: "☼", label: "今日即時運勢", value: card.todayFortune || "未提供" },
-        { icon: "☾", label: "未來 3～7 天走勢與專屬開運法", value: card.weeklyOutlook || "未提供" },
-        { icon: "✧", label: "開運穿搭與隨身小物", value: card.outfitAndLucky || "未提供" },
-        { icon: "◇", label: "避雷指南：防範人事物與禁忌色", value: card.warningAndAvoid || "未提供" },
-        { icon: "❋", label: "身心健康叮嚀", value: card.healthReminder || "未提供" }
+        { icon: "☼", label: "這次的占卜", value: card.todayFortune },
+        { icon: "☾", label: "給你的靈感", value: card.weeklyOutlook },
+        { icon: "✧", label: "試試這個小行動", value: card.outfitAndLucky },
+        { icon: "◇", label: "溫柔提醒", value: card.warningAndAvoid },
+        { icon: "❋", label: "回顧你的選擇", value: card.healthReminder }
       ];
       const wrapper = document.createElement("div");
       wrapper.className = "result-card";
       wrapper.innerHTML = `
         <div class="result-cover">
-          <div class="result-badge">✦ 專屬命理啟示錄 ✦</div>
+          <div class="result-badge">✦ 你的趣味靈感手札 ✦</div>
           <div class="result-cover-mark" aria-hidden="true">☾</div>
           <h3 class="result-title">${escapeHtml(title)}</h3>
           <div class="result-keyword">${escapeHtml(keyword)}</div>

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 塔羅占卜・星座星盤・紫微八字｜星月靈犀占卜館</title>
-  <meta name="description" content="體驗 AI 互動塔羅占卜、星座星盤與紫微八字命理模擬，透過對話探索感情、工作與近期運勢；內容僅供娛樂與自我省思參考。" />
-  <meta name="keywords" content="AI占卜, AI塔羅占卜, 線上塔羅占卜, 星座運勢, 星盤解讀, 紫微斗數, 八字命理, 互動占卜, 娛樂占卜" />
+  <title>塔羅占卜・星座・趣味命理｜星月靈犀占卜館</title>
+  <meta name="description" content="抽塔羅牌、探索星座與趣味命理，回答有趣的選擇題，獲得專屬的娛樂占卜結果。" />
+  <meta name="keywords" content="線上塔羅占卜, 星座運勢, 趣味命理, 互動占卜, 娛樂占卜" />
   <meta name="author" content="星月靈犀占卜館" />
   <meta name="application-name" content="星月靈犀占卜館" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -14,19 +14,20 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="zh_TW" />
   <meta property="og:site_name" content="星月靈犀占卜館" />
-  <meta property="og:title" content="AI 塔羅占卜・星座星盤・紫微八字｜星月靈犀占卜館" />
-  <meta property="og:description" content="體驗 AI 互動塔羅占卜、星座星盤與紫微八字命理模擬，透過對話探索感情、工作與近期運勢；內容僅供娛樂與自我省思參考。" />
+  <meta property="og:title" content="塔羅占卜・星座・趣味命理｜星月靈犀占卜館" />
+  <meta property="og:description" content="抽牌、回答趣味問題，探索屬於此刻的娛樂占卜結果。" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="AI 塔羅占卜・星座星盤・紫微八字｜星月靈犀占卜館" />
-  <meta name="twitter:description" content="體驗 AI 互動塔羅占卜、星座星盤與紫微八字命理模擬，透過對話探索感情、工作與近期運勢；內容僅供娛樂與自我省思參考。" />
+  <meta name="twitter:title" content="塔羅占卜・星座・趣味命理｜星月靈犀占卜館" />
+  <meta name="twitter:description" content="抽牌、回答趣味問題，探索屬於此刻的娛樂占卜結果。" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="js/questions.js" defer></script>
   <script src="js/common.js" defer></script>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "星月靈犀占卜館",
-      "description": "提供 AI 互動塔羅占卜、星座星盤與紫微八字命理模擬的線上娛樂體驗。",
+      "description": "提供塔羅抽牌、星座與趣味命理選擇題的線上娛樂體驗。",
       "applicationCategory": "EntertainmentApplication",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
@@ -52,7 +53,7 @@
       <div class="intake-card" id="intakeCard"></div>
     </div>
 
-    <!-- 對話區 -->
+    <!-- 答題區 -->
     <div class="chat-box" id="chatBox">
       <div class="game-scene">
         <img class="fortune-teller-image" id="fortuneTellerImage" alt="" />
@@ -60,15 +61,10 @@
       </div>
     </div>
     <button class="view-result-btn" id="viewResultBtn" type="button" hidden>✦ 查看占卜結果</button>
-    <div class="suggestions" id="suggestionsBox"></div>
-
-    <div class="input-area" id="inputArea">
-      <input type="text" id="userInput" placeholder="輸入你的回答，或向命理師提問..." maxlength="150" />
-      <button class="send-btn" id="sendBtn">送出</button>
-    </div>
+    <div class="suggestions" id="suggestionsBox" aria-label="回答選項"></div>
 
     <footer class="disclaimer">
-      免責聲明：此遊戲內容由人工智慧生成，僅供趣味體驗與自我省思參考，請勿用於醫療、投資、法律或重大人生決策。
+      免責聲明：本遊戲使用預設題目與趣味解讀，星座及命理內容並非完整星盤或紫微八字排盤，僅供娛樂與自我省思，請勿用於醫療、投資、法律或重大人生決策。
     </footer>
   </div>
 
