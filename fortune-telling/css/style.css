@@ -301,6 +301,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .result-title { margin: 0; font: 500 28px/1.5 var(--serif); overflow-wrap: anywhere; }
 .result-keyword { display: inline-block; margin: 12px 0 0; padding: 5px 15px; border: 1px solid #a68e6d; color: #f0dfc2; }
 .result-cover p { margin: 18px 0 0; color: #d7dcd4; font-size: 14px; line-height: 1.7; }
+.result-oracle-summary { display: flex; align-items: flex-start; gap: 14px; margin: -4px 24px 24px; }
+.result-oracle-avatar { flex: 0 0 64px; width: 64px; height: 64px; border: 1px solid #c5a274; border-radius: 50%; background: #eae3d5; object-fit: cover; object-position: center top; }
+.result-oracle-bubble { position: relative; flex: 1; min-width: 0; padding: 12px 16px; border: 1px solid #d8c8ad; background: #f8f3e8; }
+.result-oracle-bubble::before { position: absolute; top: 17px; left: -8px; width: 14px; height: 14px; border-bottom: 1px solid #d8c8ad; border-left: 1px solid #d8c8ad; background: #f8f3e8; content: ""; transform: rotate(45deg); }
+.result-oracle-name { position: relative; margin-bottom: 6px; color: var(--forest); font: 600 14px/1.5 var(--serif); }
+.result-oracle-bubble p { position: relative; margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
+.result-oracle-bubble mark { padding: 0 2px; background: #ead9b9; color: #795b32; font-weight: 600; }
 .result-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .result-section { min-width: 0; padding: 20px; border: 1px solid var(--line); background: #fffdf8; }
 .result-section:first-child, .result-section:nth-child(2), .result-section:last-child { grid-column: 1 / -1; }
@@ -360,9 +367,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .fortune-card-desc { margin-top: 3px; }
   .fortune-card-cta { padding-top: 8px; }
   .chat-box { margin-top: 24px; }
-  .game-scene { height: min(62vh, 500px); min-height: 300px; }
+  .game-scene { height: min(45vh, 360px); height: min(45svh, 360px); min-height: 240px; }
   .fortune-teller-image { object-fit: cover; object-position: center; }
-  .vn-dialogue { right: 10px; bottom: 10px; left: 10px; max-height: 65%; padding: 12px; }
+  .vn-dialogue { right: 10px; bottom: 10px; left: 10px; max-height: 58%; padding: 12px; }
   .vn-text { font-size: 16px; }
   .intake-card { padding: 22px 18px; }
   .intake-card.mode-selection { padding: 0; }
@@ -374,6 +381,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .result-dialog-bar { padding-left: 18px; }
   .result-card { padding: 0 16px 20px; }
   .result-cover { margin: 0 -16px 16px; padding: 28px 20px; }
+  .result-oracle-summary { gap: 10px; margin: 0 0 16px; }
+  .result-oracle-avatar { flex-basis: 48px; width: 48px; height: 48px; }
+  .result-oracle-bubble { padding: 10px 12px; }
+  .result-oracle-name { font-size: 13px; }
+  .result-oracle-bubble p { font-size: 14px; }
   .result-title { font-size: 24px; }
   .result-sections { grid-template-columns: 1fr; }
   .result-section:first-child, .result-section:nth-child(2), .result-section:last-child { grid-column: auto; }

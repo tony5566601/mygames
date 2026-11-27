@@ -60,8 +60,8 @@ function doPost(e) {
             reply: {
               type: 'STRING',
               description: shouldBeFinal
-                ? '簡短引導玩家閱讀最終占卜結果，不要再提問。'
-                : '算命師對使用者說的話，語氣自然且具體，本次只問 1 個核心問題，不要產生最終結論。'
+                ? '用一句話引導玩家閱讀最終占卜結果，不要再提問。'
+                : '算命師對使用者說的話，簡短自然且具體，最多 2 句、80 個中文字，本次只問 1 個核心問題，不要產生最終結論。'
             },
             suggestions: {
               type: 'ARRAY',
@@ -72,7 +72,7 @@ function doPost(e) {
             },
             resultCard: {
               type: 'OBJECT',
-              description: '最終占卜結果，以下 7 個欄位全部必填，不可留空或省略任何一個欄位',
+              description: '最終占卜結果，以下 8 個欄位全部必填，不可留空或省略任何一個欄位',
               properties: {
                 title: {
                   type: 'STRING',
@@ -81,6 +81,10 @@ function doPost(e) {
                 keyword: {
                   type: 'STRING',
                   description: '【必填】四字運勢箴言（例如：雲開見月、潛龍勿用、金水相生）'
+                },
+                summary: {
+                  type: 'STRING',
+                  description: '【必填】占卜師對玩家的整體重點整理，結合並解釋標題、今日運勢、未來走勢、開運與提醒，80～120 字；以【】標示 2～3 個最重要的關鍵詞或行動。'
                 },
                 todayFortune: {
                   type: 'STRING',
@@ -103,7 +107,7 @@ function doPost(e) {
                   description: '【必填】身心健康叮嚀：需注意的身體部位或作息問題與日常保養法（35～60 字）'
                 }
               },
-              required: ['title', 'keyword', 'todayFortune', 'weeklyOutlook', 'outfitAndLucky', 'warningAndAvoid', 'healthReminder']
+              required: ['title', 'keyword', 'summary', 'todayFortune', 'weeklyOutlook', 'outfitAndLucky', 'warningAndAvoid', 'healthReminder']
             }
           },
           required: ['reply', 'suggestions']
@@ -180,6 +184,7 @@ function normalizeResultCard(card, mode, tarotSpread) {
             ((tarotSpread.future && tarotSpread.future.name) || ''))
         : '塔羅三牌陣深度指引',
       keyword: '順勢破局',
+      summary: '整體以【順勢破局】為主軸：先釐清眼前優先順序，別被情緒或他人言語牽著走；接下來幾天適合把想推進的事化為一步行動，重要承諾先確認細節，也記得留時間休息。',
       todayFortune: '今天適合先釐清眼前的優先順序，下午到傍晚情緒較容易受他人話語牽動，先聽清楚再做回應。',
       weeklyOutlook: '未來 3～7 天將從盤點現況走向明確抉擇。建議睡前點燃木質或鼠尾草香氛，並把想推進的一件事寫在紙上具體執行。',
       outfitAndLucky: '建議穿著米白色或暖杏色針織衫，搭配銀飾或白水晶隨身飾品，有助穩定直覺與沉澱思緒。',
@@ -189,6 +194,7 @@ function normalizeResultCard(card, mode, tarotSpread) {
     zodiac: {
       title: '星象流年與內在張力解析',
       keyword: '星盤轉折',
+      summary: '這段時間的核心是【星盤轉折】：思緒活躍、容易反覆，先把真正重視的事寫下來；未來幾天逐步回到行動，主動釐清誤會、避免情緒上頭時做承諾，並照顧好睡眠與肩頸。',
       todayFortune: '今天思緒活躍但容易想太多，尤其在溝通與決定細節時容易反覆，建議把重點寫下來再與人討論。',
       weeklyOutlook: '未來 3～7 天能量逐步聚焦在行動落實，適合主動釐清誤會、整理待辦清單，並把握白天精神最集中的時段推進關鍵任務。',
       outfitAndLucky: '建議選擇霧霾藍、燕麥白或柔和大地色系穿搭，搭配珍珠或月光石飾品，幫助平衡情緒起伏。',
@@ -198,6 +204,7 @@ function normalizeResultCard(card, mode, tarotSpread) {
     ziwei: {
       title: '流日氣場與五行開運格局',
       keyword: '金水相生',
+      summary: '整體走勢是【金水相生】，宜先穩住節奏再求突破：今天上午適合處理要事，午後避免倉促決定；未來幾天把握合適時機推進計畫，留意溝通中的小人與作息。',
       todayFortune: '今日氣場重在穩紮穩打，上午適合處理帳務、文件或關鍵聯絡，下午則宜守不宜攻，避免臨時更動計畫。',
       weeklyOutlook: '未來 3～7 天貴人與變數並存。可準備一個新紅包袋放入 168 元或 600 元新鈔隨身或壓枕頭下三天，並把握辰時（07:00-09:00）或午時（11:00-13:00）行動。',
       outfitAndLucky: '五行開運建議穿墨綠色、酒紅色或暖棕色棉麻衣物，搭配木質手串、玉珮或黃金飾品穩固氣場。',
@@ -209,6 +216,7 @@ function normalizeResultCard(card, mode, tarotSpread) {
   return {
     title: cleanField(c.title, fb.title),
     keyword: cleanField(c.keyword, fb.keyword),
+    summary: cleanField(c.summary, fb.summary),
     todayFortune: cleanField(c.todayFortune, fb.todayFortune),
     weeklyOutlook: cleanField(c.weeklyOutlook, fb.weeklyOutlook),
     outfitAndLucky: cleanField(c.outfitAndLucky, fb.outfitAndLucky),
@@ -225,7 +233,7 @@ function cleanField(val, fallback) {
 }
 
 function doGet() {
-  return createJsonResponse({ status: 'ok', message: 'Fortune Teller GAS Proxy (7-Field Guaranteed) is running.' });
+  return createJsonResponse({ status: 'ok', message: 'Fortune Teller GAS Proxy (8-Field Guaranteed) is running.' });
 }
 
 function createJsonResponse(obj) {
@@ -280,15 +288,15 @@ function buildSystemPrompt(mode, turnCount, profileData, tarotSpread, targetQues
   var personaMap = {
     tarot: '你是一位直覺極準、觀察入微的「現代塔羅占卜師」。\n' +
       '【塔羅三張牌陣規則】\n' +
-      '- 第 1 輪：點名過去、現在、未來三張牌與代表人物，串聯過去到現在的處境，問 1 個具體現況問題（70～120 字）。\n' +
+      '- 第 1 輪：簡短點名過去、現在、未來三張牌並串聯處境，接著問 1 個具體問題。\n' +
       '- 後續提問輪次：深挖現實阻力或對方真實態度，每次只問 1 個問題。\n' +
-      '- 最終解析：完整填寫 resultCard 的全部 7 個欄位，風格偏西式直覺與生活美學，具體寫出服裝材質色系、隨身小物、防範人事物、禁忌色與健康提醒。',
+      '- 最終解析：完整填寫 resultCard 的全部 8 個欄位，風格偏西式直覺與生活美學，具體寫出服裝材質色系、隨身小物、防範人事物、禁忌色與健康提醒。',
     zodiac: '你是一位精通現代心理占星與行星流年的「星象解讀師」。\n' +
       '- 對話時結合星座性格慣性與近期星象張力，一針見血點出內在矛盾，每次只問 1 個問題。\n' +
-      '- 最終解析必須完整填寫 resultCard 的全部 7 個欄位，結合星象能量、都會穿搭色系、避雷人事色與星座對應身體部位保養。',
+      '- 最終解析必須完整填寫 resultCard 的全部 8 個欄位，結合星象能量、都會穿搭色系、避雷人事色與星座對應身體部位保養。',
     ziwei: '你是一位深諳傳統命理、講話接地氣又帶點老師傅篤定感的「紫微八字命理師」。\n' +
       '- 對話時用白話點出五行生剋、流年氣場與現實利害，每次只問 1 個問題。\n' +
-      '- 最終解析必須完整填寫 resultCard 的全部 7 個欄位，包含中式開運法（如紅包放 168/600 元新鈔、辰時/午時行動、方位）、五行穿搭與飾品、防範小人與禁忌色、中醫臟腑作息叮嚀。'
+      '- 最終解析必須完整填寫 resultCard 的全部 8 個欄位，包含中式開運法（如紅包放 168/600 元新鈔、辰時/午時行動、方位）、五行穿搭與飾品、防範小人與禁忌色、中醫臟腑作息叮嚀。'
   };
   var basePersona = personaMap[mode] || personaMap.tarot;
   var profileNote = formatProfileSummary(mode, profileData, tarotSpread);
@@ -300,7 +308,8 @@ function buildSystemPrompt(mode, turnCount, profileData, tarotSpread, targetQues
     '【玩家前置資料與牌陣狀態】\n' + profileNote + '\n\n' +
     '【輸出鐵則】\n' +
     '1. ' + stage + '\n' +
-    '2. 禁止空泛心靈雞湯，每句話都要有具體細節。\n' +
-    '3. 最終解析時，resultCard 的 title、keyword、todayFortune、weeklyOutlook、outfitAndLucky、warningAndAvoid、healthReminder 共 7 個欄位缺一不可，全部都要寫出具體內容。\n' +
-    '4. 本互動純屬娛樂與生活開運參考，不做醫療診斷。';
+    '2. 對話回覆務必精簡：最多 2 句、80 個中文字，只保留必要解讀與問題，不重複玩家說過的內容；不要長篇解說。最終回覆只用 1 句引導閱讀結果卡。\n' +
+    '3. 禁止空泛心靈雞湯，每句話都要有具體細節。\n' +
+    '4. 最終解析時，resultCard 的 title、keyword、summary、todayFortune、weeklyOutlook、outfitAndLucky、warningAndAvoid、healthReminder 共 8 個欄位缺一不可，全部都要寫出具體內容。summary 必須統整並解釋其餘結果欄位，80～120 字，並以【】標示 2～3 個重點。\n' +
+    '5. 本互動純屬娛樂與生活開運參考，不做醫療診斷。';
 }
