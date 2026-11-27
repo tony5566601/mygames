@@ -1,5 +1,5 @@
 // ★ 請替換為你部署完成的 Google Apps Script Web App 網址
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4IFY8fZ9F497jpNs1AIm1Bie3rVPgVMuEdLGCj5Di1YXQ3pZZJyZ-QjXYPCjZzQrM/exec";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7YVhgnetTFWc1ixLtcV5kXczXTIZOkjhYQKvRuODWhPaE6lm0JdNT6aIlJqEZYNv/exec";
 
     let currentMode = "tarot";
     let profileData = { skipped: true, fields: {} };
@@ -411,6 +411,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4IFY8fZ9F497j
       if (isLoading) return;
       const text = (customText || userInput.value).trim();
       if (!text) return;
+      userInput.blur();
 
       if (text === "再算另一件事" || text === "換個方式占卜") {
         showModeSelection();
@@ -475,7 +476,6 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4IFY8fZ9F497j
         isLoading = false;
         sendBtn.disabled = responseFailed;
         userInput.disabled = responseFailed;
-        if (!resultDialog.open && !responseFailed) userInput.focus();
       }
     }
 
@@ -520,6 +520,8 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4IFY8fZ9F497j
     function renderResultCard(card) {
       const title = card.title || "命運指引";
       const keyword = card.keyword || "心誠則靈";
+      const summary = card.summary || `本次占卜以【${keyword}】為核心：${card.todayFortune || ""} ${card.weeklyOutlook || ""}`;
+      const fortuneTeller = fortuneTellers[currentMode];
       const sections = [
         { icon: "☼", label: "今日即時運勢", value: card.todayFortune || "未提供" },
         { icon: "☾", label: "未來 3～7 天走勢與專屬開運法", value: card.weeklyOutlook || "未提供" },
@@ -537,6 +539,13 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4IFY8fZ9F497j
           <div class="result-keyword">${escapeHtml(keyword)}</div>
           <p>一份留給此刻的你，溫柔的提醒</p>
         </div>
+        <section class="result-oracle-summary" aria-label="占卜師重點整理">
+          <img class="result-oracle-avatar" src="${escapeHtml(fortuneTeller.image)}" alt="${escapeHtml(fortuneTeller.alt)}" />
+          <div class="result-oracle-bubble">
+            <div class="result-oracle-name">${escapeHtml(fortuneTeller.name)}・重點整理</div>
+            <p>${escapeHtml(summary).replace(/【([^】]+)】/g, "<mark>$1</mark>")}</p>
+          </div>
+        </section>
         <div class="result-sections">
           ${sections.map(section => `
             <section class="result-section">
@@ -557,6 +566,7 @@ const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4IFY8fZ9F497j
       const shareText = [
         "【星月靈犀占卜館・娛樂參考】",
         `🔮 卦象：${title}（${keyword}）`,
+        `✦ 占卜師重點整理：${summary.replace(/[【】]/g, "")}`,
         ...sections.map(section => `${section.label}：${section.value}`)
       ].join("\n");
       const actionStatus = wrapper.querySelector(".result-action-status");
